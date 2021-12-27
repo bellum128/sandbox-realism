@@ -40,7 +40,8 @@ partial class SandboxPlayer : Player
 
 	public override void Spawn()
 	{
-		MainCamera = new FirstPersonCamera();
+		MainCamera = new RealismFirstPersonCamera();
+
 		LastCamera = MainCamera;
 
 		base.Spawn();
@@ -50,7 +51,7 @@ partial class SandboxPlayer : Player
 	{
 		SetModel( "models/citizen/citizen.vmdl" );
 
-		Controller = new WalkController();
+		Controller = new RealismWalkController();
 		Animator = new StandardPlayerAnimator();
 
 		MainCamera = LastCamera;
@@ -174,13 +175,13 @@ partial class SandboxPlayer : Player
 
 		if ( Input.Pressed( InputButton.View ) )
 		{
-			if ( MainCamera is not FirstPersonCamera )
+			if ( MainCamera is not RealismFirstPersonCamera )
 			{
-				MainCamera = new FirstPersonCamera();
+				MainCamera = new RealismFirstPersonCamera();
 			}
 			else
 			{
-				MainCamera = new ThirdPersonCamera();
+				MainCamera = new RealismThirdPersonCamera();
 			}
 		}
 
