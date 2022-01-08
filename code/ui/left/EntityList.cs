@@ -23,7 +23,7 @@ public partial class EntityList : Panel
 			var btn = cell.Add.Button( entry.Title );
 			btn.AddClass( "icon" );
 			btn.AddEventListener( "onclick", () => ConsoleSystem.Run( "spawn_entity", entry.Name ) );
-			btn.Style.BackgroundImage = Texture.Load( $"/entity/{entry.Name}.png", false );
+			btn.Style.BackgroundImage = Texture.Load( FileSystem.Mounted, $"/entity/{entry.Name}.png", false );
 		};
 
 		var ents = Library.GetAllAttributes<Entity>().Where( x => x.Spawnable ).OrderBy( x => x.Title ).ToArray();
