@@ -25,7 +25,7 @@ struct CarWheel
 
 		var tr = Trace.Ray( wheelAttachPos, wheelExtend )
 			.Ignore( parent )
-			.Ignore( parent.driver )
+			.Ignore( parent.Driver )
 			.Run();
 
 		wheel = length * tr.Fraction;
@@ -33,13 +33,13 @@ struct CarWheel
 
 		if ( !doPhysics && CarEntity.debug_car )
 		{
-			var wheelPosition = tr.Hit ? tr.EndPos : wheelExtend;
+			var wheelPosition = tr.Hit ? tr.EndPosition : wheelExtend;
 			wheelPosition += rotation.Up * wheelRadius;
 
 			if ( tr.Hit )
 			{
 				DebugOverlay.Circle( wheelPosition, rotation * Rotation.FromYaw( 90 ), wheelRadius, Color.Red.WithAlpha( 0.5f ), false );
-				DebugOverlay.Line( tr.StartPos, tr.EndPos, Color.Red, 0, false );
+				DebugOverlay.Line( tr.StartPosition, tr.EndPosition, Color.Red, 0, false );
 			}
 			else
 			{

@@ -1,15 +1,13 @@
 {
-  "SharedAssets": "*.*",
   "Title": "Sandbox Realism",
   "Type": "game",
   "Org": "bellum",
-  "Ident": "sandbox-realism",
-  "FullIdent": "bellum.sandbox-realism",
+  "Ident": "sandbox_realism",
   "Schema": 1,
-  "NeedsUpgrade": false,
   "HasAssets": true,
   "AssetsPath": "",
+  "ResourcePaths": null,
   "HasCode": true,
-  "CodePath": "code",
+  "CodePath": "/code/",
   "RootNamespace": "Sandbox"
 }

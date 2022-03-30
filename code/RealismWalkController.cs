@@ -1,14 +1,15 @@
-﻿
-using Sandbox;
+﻿using Sandbox;
 
-public partial class RealismWalkController : WalkController
+namespace SandboxRealism
 {
-	public RealismWalkController()
+	internal class RealismWalkController : WalkController
 	{
-		this.SprintSpeed = 180.0f;
-		this.WalkSpeed = 122.0f;
-		this.DefaultSpeed = 64.0f;
-		this.BodyGirth = 24.0f;
+		public RealismWalkController()
+		{
+			this.SprintSpeed = 180.0f;
+			this.WalkSpeed = 122.0f;
+			this.DefaultSpeed = 64.0f;
+			this.BodyGirth = 24.0f;
+		}
 	}
 }
-

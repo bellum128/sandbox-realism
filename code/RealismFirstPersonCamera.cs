@@ -1,9 +1,12 @@
 ﻿using Sandbox;
 
-public class RealismFirstPersonCamera : FirstPersonCamera
+namespace SandboxRealism
 {
-	public RealismFirstPersonCamera()
+	internal class RealismFirstPersonCamera : FirstPersonCamera
 	{
-		this.ZNear = 5.0f;
+		public RealismFirstPersonCamera()
+		{
+			this.ZNear = 5.0f;
+		}
 	}
 }
