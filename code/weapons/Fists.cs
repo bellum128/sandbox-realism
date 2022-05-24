@@ -1,6 +1,7 @@
 ﻿using Sandbox;
 
-[Library( "weapon_fists", Title = "Fists", Spawnable = false )]
+[Spawnable]
+[Library( "weapon_fists", Title = "Fists" )]
 partial class Fists : Weapon
 {
 	public override string ViewModelPath => "models/first_person/first_person_arms.vmdl";
@@ -23,7 +24,7 @@ partial class Fists : Weapon
 			OnMeleeMiss( leftHand );
 		}
 
-		(Owner as AnimEntity)?.SetAnimParameter( "b_attack", true );
+		(Owner as AnimatedEntity)?.SetAnimParameter( "b_attack", true );
 	}
 
 	public override void AttackPrimary()
@@ -45,10 +46,23 @@ partial class Fists : Weapon
 		anim.SetAnimParameter( "holdtype", 5 );
 		anim.SetAnimParameter( "aim_body_weight", 1.0f );
 
-		if ( Owner.IsValid() )
+		if ( Owner.IsValid() && ViewModelEntity.IsValid() )
 		{
-			ViewModelEntity?.SetAnimParameter( "b_grounded", Owner.GroundEntity.IsValid() );
-			ViewModelEntity?.SetAnimParameter( "aim_pitch", Owner.EyeRotation.Pitch() );
+			ViewModelEntity.SetAnimParameter( "b_grounded", Owner.GroundEntity.IsValid() );
+			ViewModelEntity.SetAnimParameter( "aim_pitch", Owner.EyeRotation.Pitch() );
+			ViewModelEntity.SetAnimParameter( "b_jump", anim.HasEvent( "jump" ) );
+
+			var dir = Owner.Velocity;
+			var forward = Owner.Rotation.Forward.Dot( dir );
+			var sideward = Owner.Rotation.Right.Dot( dir );
+			var speed = dir.WithZ( 0 ).Length;
+
+			const float maxSpeed = 320.0f;
+
+			ViewModelEntity.SetAnimParameter( "move_groundspeed", MathX.Clamp( (speed / maxSpeed) * 2.0f, 0.0f, 2.0f ) );
+			ViewModelEntity.SetAnimParameter( "move_y", MathX.Clamp( (sideward / maxSpeed) * 2.0f, -2.0f, 2.0f ) );
+			ViewModelEntity.SetAnimParameter( "move_x", MathX.Clamp( (forward / maxSpeed) * 2.0f, -2.0f, 2.0f ) );
+			ViewModelEntity.SetAnimParameter( "move_z", MathX.Clamp( (dir.z / maxSpeed) * 2.0f, -2.0f, 2.0f ) );
 		}
 	}
 

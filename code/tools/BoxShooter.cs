@@ -22,12 +22,12 @@
 					}
 				}
 
-				if ( Input.Pressed( InputButton.Attack1 ) )
+				if ( Input.Pressed( InputButton.PrimaryAttack ) )
 				{
 					ShootBox();
 				}
 
-				if ( Input.Down( InputButton.Attack2 ) && timeSinceShoot > 0.05f )
+				if ( Input.Down( InputButton.SecondaryAttack ) && timeSinceShoot > 0.05f )
 				{
 					timeSinceShoot = 0;
 					ShootBox();

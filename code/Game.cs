@@ -27,7 +27,7 @@ partial class SandboxGame : Game
 		base.OnDestroy();
 	}
 
-	[ServerCmd( "spawn" )]
+	[ConCmd.Server( "spawn" )]
 	public static async Task Spawn( string modelname )
 	{
 		var owner = ConsoleSystem.Caller?.Pawn;
@@ -94,7 +94,7 @@ partial class SandboxGame : Game
 		return model;
 	}
 
-	[ServerCmd( "spawn_entity" )]
+	[ConCmd.Server( "spawn_entity" )]
 	public static void SpawnEntity( string entName )
 	{
 		var owner = ConsoleSystem.Caller.Pawn as Player;
@@ -102,10 +102,11 @@ partial class SandboxGame : Game
 		if ( owner == null )
 			return;
 
-		var attribute = Library.GetAttribute( entName );
+		var entityType = TypeLibrary.GetTypeByName<Entity>( entName );
+		if ( entityType == null )
 
-		if ( attribute == null || !attribute.Spawnable )
-			return;
+			if ( !TypeLibrary.Has<SpawnableAttribute>( entityType ) )
+				return;
 
 		var tr = Trace.Ray( owner.EyePosition, owner.EyePosition + owner.EyeRotation.Forward * 200 )
 			.UseHitboxes()
@@ -113,7 +114,7 @@ partial class SandboxGame : Game
 			.Size( 2 )
 			.Run();
 
-		var ent = Library.Create<Entity>( entName );
+		var ent = TypeLibrary.Create<Entity>( entityType );
 		if ( ent is BaseCarriable && owner.Inventory != null )
 		{
 			if ( owner.Inventory.Add( ent, true ) )
@@ -143,9 +144,16 @@ partial class SandboxGame : Game
 		}
 	}
 
-	[AdminCmd( "respawn_entities" )]
+	[ConCmd.Admin( "respawn_entities" )]
 	public static void RespawnEntities()
 	{
 		Map.Reset( DefaultCleanupFilter );
 	}
+
+	[ClientRpc]
+	public override void OnKilledMessage( long leftid, string left, long rightid, string right, string method )
+	{
+		KillFeed.Current?.AddEntry( leftid, left, rightid, right, method );
+	}
+
 }

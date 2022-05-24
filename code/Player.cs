@@ -11,7 +11,7 @@ partial class SandboxPlayer : Player
 	/// <summary>
 	/// The clothing container is what dresses the citizen
 	/// </summary>
-	public Clothing.Container Clothing = new();
+	public ClothingContainer Clothing = new();
 
 	/// <summary>
 	/// Default init
@@ -182,7 +182,7 @@ partial class SandboxPlayer : Player
 		base.StartTouch( other );
 	}
 
-	[ServerCmd( "inventory_current" )]
+	[ConCmd.Server( "inventory_current" )]
 	public static void SetInventoryCurrent( string entName )
 	{
 		var target = ConsoleSystem.Caller.Pawn as Player;
@@ -198,7 +198,7 @@ partial class SandboxPlayer : Player
 			if ( !slot.IsValid() )
 				continue;
 
-			if ( !slot.ClassInfo.IsNamed( entName ) )
+			if ( slot.ClassName != entName )
 				continue;
 
 			inventory.SetActiveSlot( i, false );

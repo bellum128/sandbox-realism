@@ -1,6 +1,7 @@
 ﻿using Sandbox;
 
-[Library( "noise_test", Title = "Noise Test", Spawnable = true )]
+[Spawnable]
+[Library( "noise_test", Title = "Noise Test" )]
 public partial class NoiseTest : Prop
 {
 	public override void Spawn()
@@ -27,31 +28,31 @@ public partial class NoiseTest : Prop
 		{
 			case 0:
 				{
-					DebugOverlay.Text( pos, "Perlin" );
+					DebugOverlay.Text( "Perlin", pos );
 					break;
 				}
 
 			case 1:
 				{
-					DebugOverlay.Text( pos, "SparseConvolution" );
+					DebugOverlay.Text( "SparseConvolution", pos );
 					break;
 				}
 
 			case 2:
 				{
-					DebugOverlay.Text( pos, "SparseConvolutionNormalized" );
+					DebugOverlay.Text( "SparseConvolutionNormalized", pos );
 					break;
 				}
 
 			case 3:
 				{
-					DebugOverlay.Text( pos, "Turbulence" );
+					DebugOverlay.Text( "Turbulence", pos );
 					break;
 				}
 
 			case 4:
 				{
-					DebugOverlay.Text( pos, "Fractal" );
+					DebugOverlay.Text( "Fractal", pos );
 					break;
 				}
 		}

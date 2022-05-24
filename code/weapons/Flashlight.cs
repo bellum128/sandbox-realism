@@ -1,6 +1,7 @@
 ﻿using Sandbox;
 
-[Library( "weapon_flashlight", Title = "Flashlight", Spawnable = true )]
+[Spawnable]
+[Library( "weapon_flashlight", Title = "Flashlight" )]
 partial class Flashlight : Weapon
 {
 	public override string ViewModelPath => "weapons/rust_flashlight/v_rust_flashlight.vmdl";
@@ -67,7 +68,7 @@ partial class Flashlight : Weapon
 
 		base.Simulate( cl );
 
-		bool toggle = Input.Pressed( InputButton.Flashlight ) || Input.Pressed( InputButton.Attack1 );
+		bool toggle = Input.Pressed( InputButton.Flashlight ) || Input.Pressed( InputButton.PrimaryAttack );
 
 		if ( timeSinceLightToggled > 0.1f && toggle )
 		{
@@ -144,11 +145,6 @@ partial class Flashlight : Weapon
 	{
 		Host.AssertClient();
 
-		if ( IsLocalPawn )
-		{
-			_ = new Sandbox.ScreenShake.Perlin();
-		}
-
 		ViewModelEntity?.SetAnimParameter( "attack", true );
 	}
 
@@ -156,11 +152,6 @@ partial class Flashlight : Weapon
 	private void OnMeleeHit()
 	{
 		Host.AssertClient();
-
-		if ( IsLocalPawn )
-		{
-			_ = new Sandbox.ScreenShake.Perlin( 1.0f, 1.0f, 3.0f );
-		}
 
 		ViewModelEntity?.SetAnimParameter( "attack_hit", true );
 	}

@@ -31,7 +31,7 @@
 
 			using ( Prediction.Off() )
 			{
-				if ( !Input.Pressed( InputButton.Attack1 ) )
+				if ( !Input.Pressed( InputButton.PrimaryAttack ) )
 					return;
 
 				var startPos = Owner.EyePosition;

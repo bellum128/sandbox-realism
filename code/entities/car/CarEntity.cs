@@ -1,7 +1,8 @@
 ﻿using Sandbox;
 using System;
 
-[Library( "ent_car", Title = "Car", Spawnable = true )]
+[Spawnable]
+[Library( "ent_car", Title = "Car" )]
 public partial class CarEntity : Prop, IUse
 {
 	[ConVar.Replicated( "debug_car" )]
@@ -339,7 +340,7 @@ public partial class CarEntity : Prop, IUse
 
 		if ( debug_car )
 		{
-			DebugOverlay.ScreenText( new Vector2( 200, 200 ), $"{grip}" );
+			DebugOverlay.ScreenText( $"{grip}", new Vector2( 200, 200 ) );
 		}
 
 		var angularDamping = 0.0f;

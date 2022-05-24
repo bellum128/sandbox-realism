@@ -33,7 +33,7 @@ partial class Tool : Carriable
 			return;
 
 		// Already the right tool
-		if ( CurrentTool != null && CurrentTool.Parent == this && CurrentTool.Owner == owner.Pawn && CurrentTool.ClassInfo.IsNamed( toolName ) )
+		if ( CurrentTool != null && CurrentTool.Parent == this && CurrentTool.Owner == owner.Pawn && CurrentTool.ClassName == toolName )
 			return;
 
 		if ( CurrentTool != null )
@@ -42,7 +42,7 @@ partial class Tool : Carriable
 			CurrentTool = null;
 		}
 
-		CurrentTool = Library.Create<BaseTool>( toolName, false );
+		CurrentTool = TypeLibrary.Create<BaseTool>( toolName );
 
 		if ( CurrentTool != null )
 		{

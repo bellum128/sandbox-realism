@@ -58,17 +58,17 @@ public partial class SpawnMenu : Panel
 	{
 		toollist.DeleteChildren( true );
 
-		foreach ( var entry in Library.GetAllAttributes<BaseTool>() )
+		foreach ( var entry in TypeLibrary.GetDescriptions<BaseTool>() )
 		{
 			if ( entry.Title == "BaseTool" )
 				continue;
 
 			var button = toollist.Add.Button( entry.Title );
-			button.SetClass( "active", entry.Name == ConsoleSystem.GetValue( "tool_current" ) );
+			button.SetClass( "active", entry.ClassName == ConsoleSystem.GetValue( "tool_current" ) );
 
 			button.AddEventListener( "onclick", () =>
 			{
-				ConsoleSystem.Run( "tool_current", entry.Name );
+				ConsoleSystem.Run( "tool_current", entry.ClassName );
 				ConsoleSystem.Run( "inventory_current", "weapon_tool" );
 
 				foreach ( var child in toollist.Children )
@@ -89,7 +89,7 @@ public partial class SpawnMenu : Panel
 	void UpdateActiveTool()
 	{
 		var toolCurrent = ConsoleSystem.GetValue( "tool_current" );
-		var tool = string.IsNullOrWhiteSpace( toolCurrent ) ? null : Library.GetAttribute( toolCurrent );
+		var tool = string.IsNullOrWhiteSpace( toolCurrent ) ? null : TypeLibrary.GetDescription<BaseTool>( toolCurrent );
 
 		foreach ( var child in toollist.Children )
 		{

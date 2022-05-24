@@ -14,8 +14,8 @@
 
 			using ( Prediction.Off() )
 			{
-				bool push = Input.Down( InputButton.Attack1 );
-				if ( !push && !Input.Down( InputButton.Attack2 ) )
+				bool push = Input.Down( InputButton.PrimaryAttack );
+				if ( !push && !Input.Down( InputButton.SecondaryAttack ) )
 					return;
 
 				var startPos = Owner.EyePosition;

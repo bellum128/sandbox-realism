@@ -38,12 +38,12 @@ struct CarWheel
 
 			if ( tr.Hit )
 			{
-				DebugOverlay.Circle( wheelPosition, rotation * Rotation.FromYaw( 90 ), wheelRadius, Color.Red.WithAlpha( 0.5f ), false );
+				DebugOverlay.Circle( wheelPosition, rotation * Rotation.FromYaw( 90 ), wheelRadius, Color.Red.WithAlpha( 0.5f ), 0, false );
 				DebugOverlay.Line( tr.StartPosition, tr.EndPosition, Color.Red, 0, false );
 			}
 			else
 			{
-				DebugOverlay.Circle( wheelPosition, rotation * Rotation.FromYaw( 90 ), wheelRadius, Color.Green.WithAlpha( 0.5f ), false );
+				DebugOverlay.Circle( wheelPosition, rotation * Rotation.FromYaw( 90 ), wheelRadius, Color.Green.WithAlpha( 0.5f ), 0, false );
 				DebugOverlay.Line( wheelAttachPos, wheelExtend, Color.Green, 0, false );
 			}
 		}

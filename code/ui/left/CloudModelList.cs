@@ -40,8 +40,6 @@ public partial class CloudModelList : Panel
 		q.Skip = offset;
 
 		var found = await q.RunAsync( default );
-
-		Log.Info( found );
 		Canvas.SetItems( found );
 
 		// TODO - auto add more items here
