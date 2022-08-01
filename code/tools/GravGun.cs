@@ -34,10 +34,8 @@ public partial class GravGun : Carriable
 	{
 		base.Spawn();
 
+		Tags.Add( "weapon" );
 		SetModel( "weapons/rust_pistol/rust_pistol.vmdl" );
-
-		CollisionGroup = CollisionGroup.Weapon;
-		SetInteractsAs( CollisionLayer.Debris );
 	}
 
 	public override void Simulate( Client client )
@@ -94,9 +92,9 @@ public partial class GravGun : Carriable
 
 			var tr = Trace.Ray( eyePos, eyePos + eyeDir * MaxPullDistance )
 				.UseHitboxes()
-				.Ignore( owner, false )
+				.WithTag( "solid" )
+				.Ignore( this )
 				.Radius( 2.0f )
-				.HitLayer( CollisionLayer.Debris )
 				.Run();
 
 			if ( !tr.Hit || !tr.Body.IsValid() || !tr.Entity.IsValid() || tr.Entity.IsWorld )

@@ -25,7 +25,7 @@ namespace Sandbox.Tools
 				var tr = Trace.Ray( startPos, startPos + dir * MaxTraceDistance )
 				   .Ignore( Owner )
 				   .UseHitboxes()
-				   .HitLayer( CollisionLayer.Debris )
+				   .WithAllTags( "solid" )
 				   .Run();
 
 				if ( !tr.Hit || !tr.Entity.IsValid() )

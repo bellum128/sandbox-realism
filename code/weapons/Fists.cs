@@ -41,29 +41,11 @@ partial class Fists : Weapon
 	{
 	}
 
-	public override void SimulateAnimator( PawnAnimator anim )
+	public override void SimulateAnimator( CitizenAnimationHelper anim )
 	{
-		anim.SetAnimParameter( "holdtype", 5 );
-		anim.SetAnimParameter( "aim_body_weight", 1.0f );
-
-		if ( Owner.IsValid() && ViewModelEntity.IsValid() )
-		{
-			ViewModelEntity.SetAnimParameter( "b_grounded", Owner.GroundEntity.IsValid() );
-			ViewModelEntity.SetAnimParameter( "aim_pitch", Owner.EyeRotation.Pitch() );
-			ViewModelEntity.SetAnimParameter( "b_jump", anim.HasEvent( "jump" ) );
-
-			var dir = Owner.Velocity;
-			var forward = Owner.Rotation.Forward.Dot( dir );
-			var sideward = Owner.Rotation.Right.Dot( dir );
-			var speed = dir.WithZ( 0 ).Length;
-
-			const float maxSpeed = 320.0f;
-
-			ViewModelEntity.SetAnimParameter( "move_groundspeed", MathX.Clamp( (speed / maxSpeed) * 2.0f, 0.0f, 2.0f ) );
-			ViewModelEntity.SetAnimParameter( "move_y", MathX.Clamp( (sideward / maxSpeed) * 2.0f, -2.0f, 2.0f ) );
-			ViewModelEntity.SetAnimParameter( "move_x", MathX.Clamp( (forward / maxSpeed) * 2.0f, -2.0f, 2.0f ) );
-			ViewModelEntity.SetAnimParameter( "move_z", MathX.Clamp( (dir.z / maxSpeed) * 2.0f, -2.0f, 2.0f ) );
-		}
+		anim.HoldType = CitizenAnimationHelper.HoldTypes.Punch;
+		anim.Handedness = CitizenAnimationHelper.Hand.Both;
+		anim.AimBodyWeight = 1.0f;
 	}
 
 	public override void CreateViewModel()
@@ -92,7 +74,7 @@ partial class Fists : Weapon
 
 		bool hit = false;
 
-		foreach ( var tr in TraceBullet( Owner.EyePosition, Owner.EyePosition + forward * 80, 20.0f ) )
+		foreach ( var tr in TraceMelee( Owner.EyePosition, Owner.EyePosition + forward * 80, 20.0f ) )
 		{
 			if ( !tr.Entity.IsValid() ) continue;
 

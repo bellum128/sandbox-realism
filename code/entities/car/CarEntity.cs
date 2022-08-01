@@ -84,7 +84,6 @@ public partial class CarEntity : Prop, IUse
 
 		SetModel( modelName );
 		SetupPhysicsFromModel( PhysicsMotionType.Dynamic, false );
-		SetInteractsExclude( CollisionLayer.Player );
 		EnableSelfCollisions = false;
 
 		var trigger = new ModelEntity
@@ -93,11 +92,11 @@ public partial class CarEntity : Prop, IUse
 			Position = Position,
 			Rotation = Rotation,
 			EnableTouch = true,
-			CollisionGroup = CollisionGroup.Trigger,
 			Transmit = TransmitType.Never,
 			EnableSelfCollisions = false,
 		};
 
+		trigger.Tags.Add( "trigger" );
 		trigger.SetModel( modelName );
 		trigger.SetupPhysicsFromModel( PhysicsMotionType.Keyframed, false );
 	}
@@ -229,7 +228,8 @@ public partial class CarEntity : Prop, IUse
 		//Driver.ActiveChild?.Simulate( client );
 
 		Driver.SetAnimParameter( "b_grounded", true );
-		Driver.SetAnimParameter( "b_sit", true );
+		Driver.SetAnimParameter( "b_noclip", false );
+		Driver.SetAnimParameter( "sit", 1 );
 
 		var aimRotation = Input.Rotation.Clamp( Driver.Rotation, 90 );
 
@@ -361,7 +361,7 @@ public partial class CarEntity : Prop, IUse
 
 			var forwardGrip = 0.1f;
 			forwardGrip = forwardGrip.LerpTo( 0.9f, currentInput.breaking );
-			body.Velocity = VelocityDamping( Velocity, rotation, new Vector3( forwardGrip, grip, 0 ), dt );
+			body.Velocity = VelocityDamping( body.Velocity, rotation, new Vector3( forwardGrip, grip, 0 ), dt );
 		}
 		else
 		{
@@ -489,6 +489,8 @@ public partial class CarEntity : Prop, IUse
 
 	private void RemoveDriver( SandboxPlayer player )
 	{
+		Driver?.SetAnimParameter( "sit", 0 );
+
 		Driver = null;
 		timeSinceDriverLeft = 0;
 
@@ -555,12 +557,15 @@ public partial class CarEntity : Prop, IUse
 
 			OnPhysicsCollision( new CollisionEventData
 			{
-				Entity = player,
+				This = new CollisionEntityData
+				{
+					Entity = player,
+					PreVelocity = velocity,
+					PostVelocity = velocity,
+					PreAngularVelocity = angularVelocity,
+				},
 				Position = player.Position + Vector3.Up * 50,
 				Velocity = velocity,
-				PreVelocity = velocity,
-				PostVelocity = velocity,
-				PreAngularVelocity = angularVelocity,
 				Speed = speed,
 			} );
 		}
@@ -571,7 +576,7 @@ public partial class CarEntity : Prop, IUse
 		if ( !IsServer )
 			return;
 
-		if ( eventData.Entity is SandboxPlayer )
+		if ( eventData.This.Entity is SandboxPlayer )
 			return;
 
 		var propData = GetModelPropData();
@@ -586,20 +591,20 @@ public partial class CarEntity : Prop, IUse
 
 		if ( speed > minImpactSpeed )
 		{
-			if ( eventData.Entity.IsValid() && eventData.Entity != this )
+			if ( eventData.This.Entity.IsValid() && eventData.This.Entity != this )
 			{
 				var damage = speed / minImpactSpeed * impactDmg * 1.2f;
-				eventData.Entity.TakeDamage( DamageInfo.Generic( damage )
+				eventData.This.Entity.TakeDamage( DamageInfo.Generic( damage )
 					.WithFlag( DamageFlags.PhysicsImpact )
 					.WithFlag( DamageFlags.Vehicle )
 					.WithAttacker( Driver != null ? Driver : this, Driver != null ? this : null )
 					.WithPosition( eventData.Position )
-					.WithForce( eventData.PreVelocity ) );
+					.WithForce( eventData.This.PreVelocity ) );
 
-				if ( eventData.Entity.LifeState == LifeState.Dead && eventData.Entity is not SandboxPlayer )
+				if ( eventData.This.Entity.LifeState == LifeState.Dead && eventData.This.Entity is not SandboxPlayer )
 				{
-					PhysicsBody.Velocity = eventData.PreVelocity;
-					PhysicsBody.AngularVelocity = eventData.PreAngularVelocity;
+					PhysicsBody.Velocity = eventData.This.PreVelocity;
+					PhysicsBody.AngularVelocity = eventData.This.PreAngularVelocity;
 				}
 			}
 		}

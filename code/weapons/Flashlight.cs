@@ -53,7 +53,7 @@ partial class Flashlight : Weapon
 			Color = Color.White,
 			InnerConeAngle = 20,
 			OuterConeAngle = 40,
-			FogStength = 1.0f,
+			FogStrength = 1.0f,
 			Owner = Owner,
 			LightCookie = Texture.Load( "materials/effects/lightcookie.vtex" )
 		};
@@ -116,7 +116,7 @@ partial class Flashlight : Weapon
 
 		bool hit = false;
 
-		foreach ( var tr in TraceBullet( Owner.EyePosition, Owner.EyePosition + forward * 80, 20.0f ) )
+		foreach ( var tr in TraceMelee( Owner.EyePosition, Owner.EyePosition + forward * 80, 20.0f ) )
 		{
 			if ( !tr.Entity.IsValid() ) continue;
 
@@ -197,5 +197,12 @@ partial class Flashlight : Weapon
 				Deactivate();
 			}
 		}
+	}
+
+	public override void SimulateAnimator( CitizenAnimationHelper anim )
+	{
+		anim.HoldType = CitizenAnimationHelper.HoldTypes.Pistol;
+		anim.Handedness = CitizenAnimationHelper.Hand.Right;
+		anim.AimBodyWeight = 1.0f;
 	}
 }

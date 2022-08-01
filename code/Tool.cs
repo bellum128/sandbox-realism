@@ -9,7 +9,7 @@ partial class Tool : Carriable
 
 	public override string ViewModelPath => "weapons/rust_pistol/v_rust_pistol.vmdl";
 
-	[Net, Predicted]
+	[Net]
 	public BaseTool CurrentTool { get; set; }
 
 	public override void Spawn()
@@ -21,19 +21,27 @@ partial class Tool : Carriable
 
 	public override void Simulate( Client owner )
 	{
-		UpdateCurrentTool( owner );
+		if ( Host.IsServer )
+		{
+			UpdateCurrentTool( owner );
+		}
 
 		CurrentTool?.Simulate();
+
+		if ( Host.IsServer )
+		{
+			CurrentTool?.UpdatePreviews();
+		}
 	}
 
 	private void UpdateCurrentTool( Client owner )
 	{
-		var toolName = owner.GetClientData<string>( "tool_current", "tool_boxgun" );
+		var toolName = owner.GetClientData<string>( "tool_current", "tool_balloon" );
 		if ( toolName == null )
 			return;
 
 		// Already the right tool
-		if ( CurrentTool != null && CurrentTool.Parent == this && CurrentTool.Owner == owner.Pawn && CurrentTool.ClassName == toolName )
+		if ( CurrentTool != null && CurrentTool.ClassName == toolName )
 			return;
 
 		if ( CurrentTool != null )
@@ -87,11 +95,11 @@ partial class Tool : Carriable
 		CurrentTool?.OnFrame();
 	}
 
-	public override void SimulateAnimator( PawnAnimator anim )
+	public override void SimulateAnimator( CitizenAnimationHelper anim )
 	{
-		anim.SetAnimParameter( "holdtype", 1 );
-		anim.SetAnimParameter( "aim_body_weight", 1.0f );
-		anim.SetAnimParameter( "holdtype_handedness", 1 );
+		anim.HoldType = CitizenAnimationHelper.HoldTypes.Pistol;
+		anim.Handedness = CitizenAnimationHelper.Hand.Right;
+		anim.AimBodyWeight = 1.0f;
 	}
 }
 
@@ -99,14 +107,20 @@ namespace Sandbox.Tools
 {
 	public partial class BaseTool : BaseNetworkable
 	{
+		[Net]
 		public Tool Parent { get; set; }
+
+		[Net]
 		public Player Owner { get; set; }
 
 		protected virtual float MaxTraceDistance => 10000.0f;
 
 		public virtual void Activate()
 		{
-			CreatePreviews();
+			if ( Host.IsServer )
+			{
+				CreatePreviews();
+			}
 		}
 
 		public virtual void Deactivate()

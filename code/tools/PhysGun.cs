@@ -40,10 +40,8 @@ public partial class PhysGun : Carriable
 	{
 		base.Spawn();
 
+		Tags.Add( "weapon" );
 		SetModel( "weapons/rust_pistol/rust_pistol.vmdl" );
-
-		CollisionGroup = CollisionGroup.Weapon;
-		SetInteractsAs( CollisionLayer.Debris );
 	}
 
 	public override void Simulate( Client client )
@@ -121,8 +119,7 @@ public partial class PhysGun : Carriable
 	{
 		var tr = Trace.Ray( eyePos, eyePos + eyeDir * MaxTargetDistance )
 			.UseHitboxes()
-			.Ignore( owner, false )
-			.HitLayer( CollisionLayer.Debris )
+			.Ignore( this )
 			.Run();
 
 		if ( !tr.Hit || !tr.Entity.IsValid() || tr.Entity.IsWorld ) return;
@@ -158,8 +155,8 @@ public partial class PhysGun : Carriable
 	{
 		var tr = Trace.Ray( eyePos, eyePos + eyeDir * MaxTargetDistance )
 			.UseHitboxes()
-			.Ignore( owner, false )
-			.HitLayer( CollisionLayer.Debris )
+			.WithTag( "solid" )
+			.Ignore( this )
 			.Run();
 
 		if ( !tr.Hit || !tr.Entity.IsValid() || tr.Entity.IsWorld || tr.StartedSolid ) return;

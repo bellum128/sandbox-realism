@@ -61,10 +61,4 @@ partial class Pistol : Weapon
 		}
 	}
 
-	public override void SimulateAnimator( PawnAnimator anim )
-	{
-		anim.SetAnimParameter( "holdtype", 1 );
-		anim.SetAnimParameter( "aim_body_weight", 1.0f );
-		anim.SetAnimParameter( "holdtype_handedness", 0 );
-	}
 }

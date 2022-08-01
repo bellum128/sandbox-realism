@@ -52,9 +52,10 @@ partial class SMG : Weapon
 		ViewModelEntity?.SetAnimParameter( "fire", true );
 	}
 
-	public override void SimulateAnimator( PawnAnimator anim )
+	public override void SimulateAnimator( CitizenAnimationHelper anim )
 	{
-		anim.SetAnimParameter( "holdtype", 2 ); // TODO this is shit
-		anim.SetAnimParameter( "aim_body_weight", 1.0f );
+		anim.HoldType = CitizenAnimationHelper.HoldTypes.Rifle;
+		anim.Handedness = CitizenAnimationHelper.Hand.Both;
+		anim.AimBodyWeight = 1.0f;
 	}
 }

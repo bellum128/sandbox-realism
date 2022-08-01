@@ -63,7 +63,7 @@ public partial class PhysGun
 		var tr = Trace.Ray( startPos, startPos + dir * MaxTargetDistance )
 			.UseHitboxes()
 			.Ignore( owner, false )
-			.HitLayer( CollisionLayer.Debris )
+			.WithAllTags( "solid" )
 			.Run();
 
 		if ( Beam == null )
