@@ -1,0 +1,7 @@
+{
+    "spawnmenu.props" : "models",
+    "spawnmenu.entities" : "entities",
+    "spawnmenu.cloudmodels": "asset.party",
+    "spawnmenu.tools": "tools",
+    "spawnmenu.utility": "utility"
+}

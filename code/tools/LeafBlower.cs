@@ -18,13 +18,7 @@
 				if ( !push && !Input.Down( InputButton.SecondaryAttack ) )
 					return;
 
-				var startPos = Owner.EyePosition;
-				var dir = Owner.EyeRotation.Forward;
-
-				var tr = Trace.Ray( startPos, startPos + dir * MaxTraceDistance )
-					.Ignore( Owner )
-					.WithAnyTags( "solid" )
-					.Run();
+				var tr = DoTrace();
 
 				if ( !tr.Hit )
 					return;

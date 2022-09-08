@@ -18,13 +18,12 @@ public class CarCamera : CameraMode
 	protected virtual float MaxOrbitReturnSpeed => 100.0f;
 	protected virtual float MinCarPitch => -60.0f;
 	protected virtual float MaxCarPitch => 60.0f;
-	protected virtual float FirstPersonPitch => 10.0f;
 	protected virtual float CarPitchSmoothingSpeed => 1.0f;
 	protected virtual float CollisionRadius => 8.0f;
-	protected virtual float ShakeSpeed => 10.0f;
-	protected virtual float ShakeSpeedThreshold => 1500.0f;
+	protected virtual float ShakeSpeed => 200.0f;
+	protected virtual float ShakeSpeedThreshold => 1000.0f;
 	protected virtual float ShakeMaxSpeed => 2500.0f;
-	protected virtual float ShakeMaxLength => 1.0f;
+	protected virtual float ShakeMaxLength => 2.0f;
 
 	private bool orbitEnabled;
 	private TimeSince timeSinceOrbit;
@@ -150,12 +149,12 @@ public class CarCamera : CameraMode
 		if ( speed < ShakeSpeedThreshold )
 			return;
 
-		var pos = (Time.Now % MathF.PI) * ShakeSpeed;
+		var pos = Time.Now * ShakeSpeed;
 		var length = (speed - ShakeSpeedThreshold) / (ShakeMaxSpeed - ShakeSpeedThreshold);
 		length = length.Clamp( 0, ShakeMaxLength );
 
-		float x = Noise.Perlin( pos, 0, 0 ) * length;
-		float y = Noise.Perlin( pos, 5.0f, 0 ) * length;
+		float x = (0.5f - Noise.Simplex( pos )) * 2.0f * length;
+		float y = (0.5f - Noise.Perlin( pos, 5.0f )) * 2.0f * length;
 
 		Position += Rotation.Right * x + Rotation.Up * y;
 		Rotation *= Rotation.FromAxis( Vector3.Up, x );

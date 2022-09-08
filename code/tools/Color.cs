@@ -17,11 +17,7 @@ namespace Sandbox.Tools
 
 				if ( !Input.Pressed( InputButton.PrimaryAttack ) ) return;
 
-				var tr = Trace.Ray( startPos, startPos + dir * MaxTraceDistance )
-				   .Ignore( Owner )
-				   .UseHitboxes()
-				   .WithAnyTags( "solid" )
-				   .Run();
+				var tr = DoTrace();
 
 				if ( !tr.Hit || !tr.Entity.IsValid() )
 					return;

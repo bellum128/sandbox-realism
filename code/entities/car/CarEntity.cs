@@ -78,27 +78,16 @@ public partial class CarEntity : Prop, IUse
 	{
 		base.Spawn();
 
+		Predictable = false;
+
 		var modelName = "models/car/car.vmdl";
 
 		Components.Create<CarCamera>();
 
 		SetModel( modelName );
 		SetupPhysicsFromModel( PhysicsMotionType.Dynamic, false );
+
 		EnableSelfCollisions = false;
-
-		var trigger = new ModelEntity
-		{
-			Parent = this,
-			Position = Position,
-			Rotation = Rotation,
-			EnableTouch = true,
-			Transmit = TransmitType.Never,
-			EnableSelfCollisions = false,
-		};
-
-		trigger.Tags.Add( "trigger" );
-		trigger.SetModel( modelName );
-		trigger.SetupPhysicsFromModel( PhysicsMotionType.Keyframed, false );
 	}
 
 	public override void ClientSpawn()
@@ -193,32 +182,29 @@ public partial class CarEntity : Prop, IUse
 	public override void Simulate( Client client )
 	{
 		SimulateDriver( client );
-
-		if ( !IsServer ) return;
-
-		currentInput.Reset();
-		currentInput.throttle = (Input.Down( InputButton.Forward ) ? 1 : 0) + (Input.Down( InputButton.Back ) ? -1 : 0);
-		currentInput.turning = (Input.Down( InputButton.Left ) ? 1 : 0) + (Input.Down( InputButton.Right ) ? -1 : 0);
-		currentInput.breaking = (Input.Down( InputButton.Jump ) ? 1 : 0);
-		currentInput.tilt = (Input.Down( InputButton.Run ) ? 1 : 0) + (Input.Down( InputButton.Duck ) ? -1 : 0);
-		currentInput.roll = (Input.Down( InputButton.Left ) ? 1 : 0) + (Input.Down( InputButton.Right ) ? -1 : 0);
-
-		//	EyeRot = Input.Rotation;
-		//	EyePosLocal = Vector3.Up * (64 - 10) * car.Scale;
-		//	Velocity = car.Velocity;
-
-		//SetTag( "noclip" );
-		//SetTag( "sitting" );
 	}
 
 	void SimulateDriver( Client client )
 	{
 		if ( !Driver.IsValid() ) return;
 
-		if ( IsServer && Input.Pressed( InputButton.Use ) )
+		if ( IsServer )
 		{
-			RemoveDriver( Driver as SandboxPlayer );
-			return;
+			if ( Input.Pressed( InputButton.Use ) )
+			{
+				RemoveDriver( Driver as SandboxPlayer );
+
+				return;
+			}
+			else
+			{
+				currentInput.Reset();
+				currentInput.throttle = (Input.Down( InputButton.Forward ) ? 1 : 0) + (Input.Down( InputButton.Back ) ? -1 : 0);
+				currentInput.turning = (Input.Down( InputButton.Left ) ? 1 : 0) + (Input.Down( InputButton.Right ) ? -1 : 0);
+				currentInput.breaking = (Input.Down( InputButton.Jump ) ? 1 : 0);
+				currentInput.tilt = (Input.Down( InputButton.Run ) ? 1 : 0) + (Input.Down( InputButton.Duck ) ? -1 : 0);
+				currentInput.roll = (Input.Down( InputButton.Left ) ? 1 : 0) + (Input.Down( InputButton.Right ) ? -1 : 0);
+			}
 		}
 
 		// TODO - at this point the driver isn't actually predicted
@@ -500,6 +486,7 @@ public partial class CarEntity : Prop, IUse
 			return;
 
 		player.Parent = null;
+		player.Position += Vector3.Up * 100;
 
 		if ( player.PhysicsBody.IsValid() )
 		{
@@ -533,50 +520,14 @@ public partial class CarEntity : Prop, IUse
 		return Driver == null;
 	}
 
-	public override void StartTouch( Entity other )
-	{
-		base.StartTouch( other );
-
-		if ( !IsServer )
-			return;
-
-		var body = PhysicsBody;
-		if ( !body.IsValid() )
-			return;
-
-		body = body.SelfOrParent;
-		if ( !body.IsValid() )
-			return;
-
-		if ( other is SandboxPlayer player )
-		{
-			var speed = body.Velocity.Length;
-			var forceOrigin = Position + Rotation.Down * Rand.Float( 20, 30 );
-			var velocity = (player.Position - forceOrigin).Normal * speed;
-			var angularVelocity = body.AngularVelocity;
-
-			OnPhysicsCollision( new CollisionEventData
-			{
-				This = new CollisionEntityData
-				{
-					Entity = player,
-					PreVelocity = velocity,
-					PostVelocity = velocity,
-					PreAngularVelocity = angularVelocity,
-				},
-				Position = player.Position + Vector3.Up * 50,
-				Velocity = velocity,
-				Speed = speed,
-			} );
-		}
-	}
-
 	protected override void OnPhysicsCollision( CollisionEventData eventData )
 	{
 		if ( !IsServer )
 			return;
 
-		if ( eventData.This.Entity is SandboxPlayer )
+		var other = eventData.Other;
+
+		if ( other.Entity is SandboxPlayer )
 			return;
 
 		var propData = GetModelPropData();
@@ -591,17 +542,17 @@ public partial class CarEntity : Prop, IUse
 
 		if ( speed > minImpactSpeed )
 		{
-			if ( eventData.This.Entity.IsValid() && eventData.This.Entity != this )
+			if ( other.Entity.IsValid() && other.Entity != this )
 			{
 				var damage = speed / minImpactSpeed * impactDmg * 1.2f;
-				eventData.This.Entity.TakeDamage( DamageInfo.Generic( damage )
+				other.Entity.TakeDamage( DamageInfo.Generic( damage )
 					.WithFlag( DamageFlags.PhysicsImpact )
 					.WithFlag( DamageFlags.Vehicle )
 					.WithAttacker( Driver != null ? Driver : this, Driver != null ? this : null )
 					.WithPosition( eventData.Position )
-					.WithForce( eventData.This.PreVelocity ) );
+					.WithForce( other.PreVelocity ) );
 
-				if ( eventData.This.Entity.LifeState == LifeState.Dead && eventData.This.Entity is not SandboxPlayer )
+				if ( other.Entity.LifeState == LifeState.Dead && other.Entity is not SandboxPlayer )
 				{
 					PhysicsBody.Velocity = eventData.This.PreVelocity;
 					PhysicsBody.AngularVelocity = eventData.This.PreAngularVelocity;

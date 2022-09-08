@@ -40,12 +40,7 @@
 				if ( !Input.Pressed( InputButton.PrimaryAttack ) )
 					return;
 
-				var startPos = Owner.EyePosition;
-				var dir = Owner.EyeRotation.Forward;
-
-				var tr = Trace.Ray( startPos, startPos + dir * MaxTraceDistance )
-					.Ignore( Owner )
-					.Run();
+				var tr = DoTrace();
 
 				if ( !tr.Hit )
 					return;
@@ -70,7 +65,7 @@
 				var ent = new ThrusterEntity
 				{
 					Position = tr.EndPosition,
-					Rotation = Rotation.LookAt( tr.Normal, dir ) * Rotation.From( new Angles( 90, 0, 0 ) ),
+					Rotation = Rotation.LookAt( tr.Normal, Owner.EyeRotation.Forward ) * Rotation.From( new Angles( 90, 0, 0 ) ),
 					PhysicsEnabled = !attached,
 					EnableSolidCollisions = !attached,
 					TargetBody = attached ? tr.Body : null,

@@ -142,5 +142,16 @@ namespace Sandbox.Tools
 		{
 			Parent?.CreateHitEffects( pos );
 		}
+
+		public virtual TraceResult DoTrace()
+		{
+			var startPos = Owner.EyePosition;
+			var dir = Owner.EyeRotation.Forward;
+
+			return Trace.Ray( startPos, startPos + ( dir * MaxTraceDistance ) )
+				.WithAllTags( "solid" )
+				.Ignore( Owner )
+				.Run();
+		}
 	}
 }

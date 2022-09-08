@@ -22,11 +22,7 @@ namespace Sandbox.Tools
 				else if ( Input.Pressed( InputButton.Reload ) ) reset = true;
 				else return;
 
-				var tr = Trace.Ray( startPos, startPos + dir * MaxTraceDistance )
-				   .Ignore( Owner )
-				   .UseHitboxes()
-				   .WithAllTags( "solid" )
-				   .Run();
+				var tr = DoTrace();
 
 				if ( !tr.Hit || !tr.Entity.IsValid() )
 					return;

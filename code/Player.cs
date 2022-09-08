@@ -92,6 +92,12 @@ partial class SandboxPlayer : Player
 
 	public override void TakeDamage( DamageInfo info )
 	{
+		if ( info.Attacker.IsValid() )
+		{
+			if ( info.Attacker.Tags.Has( $"{PhysGun.GrabbedTag}{Client.PlayerId}" ) )
+				return;
+		}
+
 		if ( GetHitboxGroup( info.HitboxIndex ) == 1 )
 		{
 			info.Damage *= 10.0f;

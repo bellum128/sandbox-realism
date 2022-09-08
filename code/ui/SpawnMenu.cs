@@ -25,13 +25,13 @@ public partial class SpawnMenu : Panel
 
 			{
 				var props = body.AddChild<SpawnList>();
-				tabs.SelectedButton = tabs.AddButtonActive( "Props", ( b ) => props.SetClass( "active", b ) );
+				tabs.SelectedButton = tabs.AddButtonActive( "#spawnmenu.props", ( b ) => props.SetClass( "active", b ) );
 
 				var ents = body.AddChild<EntityList>();
-				tabs.AddButtonActive( "Entities", ( b ) => ents.SetClass( "active", b ) );
+				tabs.AddButtonActive( "#spawnmenu.entities", ( b ) => ents.SetClass( "active", b ) );
 
 				var models = body.AddChild<CloudModelList>();
-				tabs.AddButtonActive( "s&works", ( b ) => models.SetClass( "active", b ) );
+				tabs.AddButtonActive( "#spawnmenu.cloudmodels", ( b ) => models.SetClass( "active", b ) );
 			}
 		}
 
@@ -39,8 +39,8 @@ public partial class SpawnMenu : Panel
 		{
 			var tabs = right.Add.Panel( "tabs" );
 			{
-				tabs.Add.Button( "Tools" ).AddClass( "active" );
-				tabs.Add.Button( "Utility" );
+				tabs.Add.Button( "#spawnmenu.tools" ).AddClass( "active" );
+				tabs.Add.Button( "#spawnmenu.utility" );
 			}
 			var body = right.Add.Panel( "body" );
 			{
@@ -60,7 +60,7 @@ public partial class SpawnMenu : Panel
 
 		foreach ( var entry in TypeLibrary.GetDescriptions<BaseTool>() )
 		{
-			if ( entry.Title == "BaseTool" )
+			if ( entry.Name == "BaseTool" )
 				continue;
 
 			var button = toollist.Add.Button( entry.Title );
