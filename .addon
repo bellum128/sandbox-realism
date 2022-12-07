@@ -3,6 +3,7 @@
   "Type": "game",
   "Org": "bellum",
   "Ident": "sandbox_realism",
+  "Tags": null,
   "Schema": 1,
   "HasAssets": true,
   "AssetsPath": "",
