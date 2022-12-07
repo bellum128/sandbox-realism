@@ -119,9 +119,9 @@
       "SoftBodySubsteps": 1
     },
     "DefaultLeaderboards": null,
-    "Summary": "Create and play in your own sandbox mode.",
-    "Description": "This game lets you spawn props and ragdolls and create entities to play with. It\u0027s like Garry\u0027s Mod.\r\n\r\nThis is a bit of a sandbox itself. This is not the final sandbox gamemode. All of this code will likely be thrown away and re-written when we come to do the sandbox gamemode proper.",
     "Public": true,
-    "ReplaceTags": "sandbox game dynamic spawnmenu physgun"
+    "ParentPackage": "facepunch.sandbox",
+    "Summary": "Sandbox, with a few minor tweaks focused around increasing realism during exploration.",
+    "Description": "This is a fork of the vanilla Sandbox gamemode for S\u0026box, with a few minor tweaks focused around increasing realism during exploration.\r\n\r\nThese changes are not meant to necessarily be used in everyday play of the game, as this would not be a fun regular speed to play at. However, these speed and player size modifications give a more immersive feel of scale when exploring realistic maps, when gameplay is not necessarily the end goal.\r\n\r\nDifferences from Default Sandbox:\r\n-Drastically reduced player speed to realistic levels. For example, in real life, it takes around 2 minutes to walk a city block, not approximately 40 seconds as it does in the default gamemode.\r\n\r\n-Reduced player physbox girth to 24 units, down from 32. A standard human can fit through a much smaller space than 32 inches, and this partially accounts for that.\r\n\r\n-Lowered near clipping plane to 5 units. This fixes a common camera glitch near the border of the screen when near a wall.\r\n\r\n"
   }
 }
