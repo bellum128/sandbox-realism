@@ -159,7 +159,7 @@ public partial class CarEntity : Prop, IUse
 	{
 		base.OnDestroy();
 
-		if ( Driver is SandboxPlayer player )
+		if ( IsServer && Driver is SandboxPlayer player )
 		{
 			RemoveDriver( player );
 		}
@@ -217,9 +217,10 @@ public partial class CarEntity : Prop, IUse
 		Driver.SetAnimParameter( "b_noclip", false );
 		Driver.SetAnimParameter( "sit", 1 );
 
-		var aimRotation = Input.Rotation.Clamp( Driver.Rotation, 90 );
+		var viewRotation = Driver.ViewAngles.ToRotation();
+		var aimRotation = viewRotation.Clamp( Driver.Rotation, 90f );
 
-		var aimPos = Driver.EyePosition + aimRotation.Forward * 200;
+		var aimPos = Driver.EyePosition + aimRotation.Forward * 200f;
 		var localPos = new Transform( Driver.EyePosition, Driver.Rotation ).PointToLocal( aimPos );
 
 		Driver.SetAnimParameter( "aim_eyes", localPos );
@@ -475,6 +476,9 @@ public partial class CarEntity : Prop, IUse
 
 	private void RemoveDriver( SandboxPlayer player )
 	{
+		if ( !IsServer )
+			return;
+
 		Driver?.SetAnimParameter( "sit", 0 );
 
 		Driver = null;

@@ -140,7 +140,7 @@ public partial class PhysGun : Carriable
 	{
 		var tr = Trace.Ray( eyePos, eyePos + eyeDir * MaxTargetDistance )
 			.UseHitboxes()
-			.WithAnyTags( "solid", "player" )
+			.WithAnyTags( "solid", "player", "debris" )
 			.Ignore( this )
 			.Run();
 
@@ -375,10 +375,9 @@ public partial class PhysGun : Carriable
 		heldRot = localRot * heldRot;
 	}
 
-	public override void BuildInput( InputBuilder owner )
+	public override void BuildInput()
 	{
-		if ( !owner.Down( InputButton.Use ) ||
-			 !owner.Down( InputButton.PrimaryAttack ) ||
+		if ( !Input.Down( InputButton.Use ) || !Input.Down( InputButton.PrimaryAttack ) ||
 			 !GrabbedEntity.IsValid() )
 		{
 			return;
@@ -387,7 +386,10 @@ public partial class PhysGun : Carriable
 		//
 		// Lock view angles
 		//
-		owner.ViewAngles = owner.OriginalViewAngles;
+		if ( Owner is Player pl )
+		{
+			pl.ViewAngles = pl.OriginalViewAngles;
+		}
 	}
 
 	public override bool IsUsable( Entity user )

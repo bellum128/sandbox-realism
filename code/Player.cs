@@ -72,7 +72,7 @@ partial class SandboxPlayer : Player
 			PlaySound( "kersplat" );
 		}
 
-		BecomeRagdollOnClient( Velocity, lastDamage.Flags, lastDamage.Position, lastDamage.Force, GetHitboxBone( lastDamage.HitboxIndex ) );
+		BecomeRagdollOnClient( Velocity, lastDamage.Flags, lastDamage.Position, lastDamage.Force, lastDamage.BoneIndex );
 
 		Controller = null;
 
@@ -98,7 +98,7 @@ partial class SandboxPlayer : Player
 				return;
 		}
 
-		if ( GetHitboxGroup( info.HitboxIndex ) == 1 )
+		if ( info.Hitbox.HasTag( "head" ) )
 		{
 			info.Damage *= 10.0f;
 		}
@@ -125,11 +125,6 @@ partial class SandboxPlayer : Player
 	public override void Simulate( Client cl )
 	{
 		base.Simulate( cl );
-
-		if ( Input.ActiveChild != null )
-		{
-			ActiveChild = Input.ActiveChild;
-		}
 
 		if ( LifeState != LifeState.Alive )
 			return;
@@ -179,7 +174,7 @@ partial class SandboxPlayer : Player
 			timeSinceJumpReleased = 0;
 		}
 
-		if ( Input.Left != 0 || Input.Forward != 0 )
+		if ( InputDirection.y != 0 || InputDirection.x != 0f )
 		{
 			timeSinceJumpReleased = 1;
 		}
@@ -194,7 +189,16 @@ partial class SandboxPlayer : Player
 
 		// where should we be rotated to
 		var turnSpeed = 0.02f;
-		var idealRotation = Rotation.LookAt( Input.Rotation.Forward.WithZ( 0 ), Vector3.Up );
+
+		Rotation rotation;
+
+		// If we're a bot, spin us around 180 degrees.
+		if ( Client.IsBot )
+			rotation = ViewAngles.WithYaw( ViewAngles.yaw + 180f ).ToRotation();
+		else
+			rotation = ViewAngles.ToRotation();
+
+		var idealRotation = Rotation.LookAt( rotation.Forward.WithZ( 0 ), Vector3.Up );
 		Rotation = Rotation.Slerp( Rotation, idealRotation, controller.WishVelocity.Length * Time.Delta * turnSpeed );
 		Rotation = Rotation.Clamp( idealRotation, 45.0f, out var shuffle ); // lock facing to within 45 degrees of look direction
 
@@ -203,7 +207,7 @@ partial class SandboxPlayer : Player
 		animHelper.WithWishVelocity( controller.WishVelocity );
 		animHelper.WithVelocity( controller.Velocity );
 		animHelper.WithLookAt( EyePosition + EyeRotation.Forward * 100.0f, 1.0f, 1.0f, 0.5f );
-		animHelper.AimAngle = Input.Rotation;
+		animHelper.AimAngle = rotation;
 		animHelper.FootShuffle = shuffle;
 		animHelper.DuckLevel = MathX.Lerp( animHelper.DuckLevel, controller.HasTag( "ducked" ) ? 1 : 0, Time.Delta * 10.0f );
 		animHelper.VoiceLevel = ( Host.IsClient && Client.IsValid() ) ? Client.TimeSinceLastVoice < 0.5f ? Client.VoiceLevel : 0.0f : 0.0f;

@@ -88,7 +88,7 @@ public partial class GravGun : Carriable
 
 			var tr = Trace.Ray( eyePos, eyePos + eyeDir * MaxPullDistance )
 				.UseHitboxes()
-				.WithAnyTags( "solid" )
+				.WithAnyTags( "solid", "debris" )
 				.Ignore( this )
 				.Radius( 2.0f )
 				.Run();
