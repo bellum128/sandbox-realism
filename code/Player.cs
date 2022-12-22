@@ -40,7 +40,6 @@ partial class SandboxPlayer : Player
 		SetModel( "models/citizen/citizen.vmdl" );
 
 		Controller = new RealismWalkController();
-		Animator = new StandardPlayerAnimator();
 
 		if ( DevController is NoclipController )
 		{
@@ -61,8 +60,6 @@ partial class SandboxPlayer : Player
 		Inventory.Add( new Pistol() );
 		Inventory.Add( new Flashlight() );
 		Inventory.Add( new Fists() );
-
-		CameraMode = new RealismFirstPersonCamera();
 
 		base.Respawn();
 	}
@@ -139,14 +136,7 @@ partial class SandboxPlayer : Player
 
 		if ( Input.Pressed( InputButton.View ) )
 		{
-			if ( CameraMode is ThirdPersonCamera )
-			{
-				CameraMode = new RealismFirstPersonCamera();
-			}
-			else
-			{
-				CameraMode = new RealismThirdPersonCamera();
-			}
+			ThirdPersonCamera = !ThirdPersonCamera;
 		}
 
 		if ( Input.Pressed( InputButton.Drop ) )
@@ -304,6 +294,7 @@ partial class SandboxPlayer : Player
 	public override void FrameSimulate( IClient cl )
 	{
 		Camera.Rotation = ViewAngles.ToRotation();
+		Camera.ZNear = 3.0f;
 
 		if ( ThirdPersonCamera )
 		{
