@@ -1,5 +1,6 @@
 ﻿using Sandbox;
 using SandboxRealism;
+using System.Numerics;
 
 partial class SandboxPlayer : Player
 {
@@ -7,6 +8,9 @@ partial class SandboxPlayer : Player
 	private TimeSince timeSinceJumpReleased;
 
 	private DamageInfo lastDamage;
+
+	[Net, Predicted]
+	public bool ThirdPersonCamera { get; set; }
 
 	/// <summary>
 	/// The clothing container is what dresses the citizen
@@ -24,7 +28,7 @@ partial class SandboxPlayer : Player
 	/// <summary>
 	/// Initialize using this client
 	/// </summary>
-	public SandboxPlayer( Client cl ) : this()
+	public SandboxPlayer( IClient cl ) : this()
 	{
 		// Load clothing from client data
 		Clothing.LoadFromClient( cl );
@@ -32,6 +36,7 @@ partial class SandboxPlayer : Player
 
 	public override void Respawn()
 	{
+
 		SetModel( "models/citizen/citizen.vmdl" );
 
 		Controller = new RealismWalkController();
@@ -42,6 +47,7 @@ partial class SandboxPlayer : Player
 			DevController = null;
 		}
 
+		this.ClearWaterLevel();
 		EnableAllCollisions = true;
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
@@ -65,21 +71,19 @@ partial class SandboxPlayer : Player
 	{
 		base.OnKilled();
 
-		if ( lastDamage.Flags.HasFlag( DamageFlags.Vehicle ) )
+		if ( lastDamage.HasTag( "vehicle" ) )
 		{
 			Particles.Create( "particles/impact.flesh.bloodpuff-big.vpcf", lastDamage.Position );
 			Particles.Create( "particles/impact.flesh-big.vpcf", lastDamage.Position );
 			PlaySound( "kersplat" );
 		}
 
-		BecomeRagdollOnClient( Velocity, lastDamage.Flags, lastDamage.Position, lastDamage.Force, lastDamage.BoneIndex );
+		BecomeRagdollOnClient( Velocity, lastDamage.Position, lastDamage.Force, lastDamage.BoneIndex, lastDamage.HasTag( "bullet" ), lastDamage.HasTag( "blast" ) );
 
 		Controller = null;
 
 		EnableAllCollisions = false;
 		EnableDrawing = false;
-
-		CameraMode = new SpectateRagdollCamera();
 
 		foreach ( var child in Children )
 		{
@@ -94,7 +98,7 @@ partial class SandboxPlayer : Player
 	{
 		if ( info.Attacker.IsValid() )
 		{
-			if ( info.Attacker.Tags.Has( $"{PhysGun.GrabbedTag}{Client.PlayerId}" ) )
+			if ( info.Attacker.Tags.Has( $"{PhysGun.GrabbedTag}{Client.SteamId}" ) )
 				return;
 		}
 
@@ -105,14 +109,7 @@ partial class SandboxPlayer : Player
 
 		lastDamage = info;
 
-		TookDamage( lastDamage.Flags, lastDamage.Position, lastDamage.Force );
-
 		base.TakeDamage( info );
-	}
-
-	[ClientRpc]
-	public void TookDamage( DamageFlags damageFlags, Vector3 forcePos, Vector3 force )
-	{
 	}
 
 	public override PawnController GetActiveController()
@@ -122,7 +119,7 @@ partial class SandboxPlayer : Player
 		return base.GetActiveController();
 	}
 
-	public override void Simulate( Client cl )
+	public override void Simulate( IClient cl )
 	{
 		base.Simulate( cl );
 
@@ -168,7 +165,14 @@ partial class SandboxPlayer : Player
 		{
 			if ( timeSinceJumpReleased < 0.3f )
 			{
-				Game.Current?.DoPlayerNoclip( cl );
+				if ( DevController is NoclipController )
+				{
+					DevController = null;
+				}
+				else
+				{
+					DevController = new NoclipController();
+				}
 			}
 
 			timeSinceJumpReleased = 0;
@@ -179,6 +183,32 @@ partial class SandboxPlayer : Player
 			timeSinceJumpReleased = 1;
 		}
 	}
+
+	[ConCmd.Admin( "noclip" )]
+	static void DoPlayerNoclip()
+	{
+		if ( ConsoleSystem.Caller.Pawn is SandboxPlayer basePlayer )
+		{
+			if ( basePlayer.DevController is NoclipController )
+			{
+				basePlayer.DevController = null;
+			}
+			else
+			{
+				basePlayer.DevController = new NoclipController();
+			}
+		}
+	}
+
+	[ConCmd.Admin( "kill" )]
+	static void DoPlayerSuicide()
+	{
+		if ( ConsoleSystem.Caller.Pawn is SandboxPlayer basePlayer )
+		{
+			basePlayer.TakeDamage( new DamageInfo { Damage = basePlayer.Health * 99 } );
+		}
+	}
+
 
 	Entity lastWeapon;
 
@@ -210,12 +240,12 @@ partial class SandboxPlayer : Player
 		animHelper.AimAngle = rotation;
 		animHelper.FootShuffle = shuffle;
 		animHelper.DuckLevel = MathX.Lerp( animHelper.DuckLevel, controller.HasTag( "ducked" ) ? 1 : 0, Time.Delta * 10.0f );
-		animHelper.VoiceLevel = ( Host.IsClient && Client.IsValid() ) ? Client.TimeSinceLastVoice < 0.5f ? Client.VoiceLevel : 0.0f : 0.0f;
+		animHelper.VoiceLevel = ( Game.IsClient && Client.IsValid() ) ? Client.Voice.LastHeard < 0.5f ? Client.Voice.CurrentLevel : 0.0f : 0.0f;
 		animHelper.IsGrounded = GroundEntity != null;
 		animHelper.IsSitting = controller.HasTag( "sitting" );
 		animHelper.IsNoclipping = controller.HasTag( "noclip" );
 		animHelper.IsClimbing = controller.HasTag( "climbing" );
-		animHelper.IsSwimming = WaterLevel >= 0.5f;
+		animHelper.IsSwimming = this.GetWaterLevel() >= 0.5f;
 		animHelper.IsWeaponLowered = false;
 
 		if ( controller.HasEvent( "jump" ) ) animHelper.TriggerJump();
@@ -268,6 +298,42 @@ partial class SandboxPlayer : Player
 			inventory.SetActiveSlot( i, false );
 
 			break;
+		}
+	}
+
+	public override void FrameSimulate( IClient cl )
+	{
+		Camera.Rotation = ViewAngles.ToRotation();
+
+		if ( ThirdPersonCamera )
+		{
+			Camera.FieldOfView = Screen.CreateVerticalFieldOfView( Game.Preferences.FieldOfView );
+			Camera.FirstPersonViewer = null;
+
+			Vector3 targetPos;
+			var center = Position + Vector3.Up * 64;
+
+			var pos = center;
+			var rot = Camera.Rotation * Rotation.FromAxis( Vector3.Up, -16 );
+
+			float distance = 130.0f * Scale;
+			targetPos = pos + rot.Right * ((CollisionBounds.Mins.x + 32) * Scale);
+			targetPos += rot.Forward * -distance;
+
+			var tr = Trace.Ray( pos, targetPos )
+				.WithAnyTags( "solid" )
+				.Ignore( this )
+				.Radius( 8 )
+				.Run();
+
+			Camera.Position = tr.EndPosition;
+		}
+		else
+		{
+			Camera.Position = EyePosition;
+			Camera.FieldOfView = Screen.CreateVerticalFieldOfView( Game.Preferences.FieldOfView );
+			Camera.FirstPersonViewer = this;
+			Camera.Main.SetViewModelCamera( 90f );
 		}
 	}
 }

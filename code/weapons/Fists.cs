@@ -50,7 +50,7 @@ partial class Fists : Weapon
 
 	public override void CreateViewModel()
 	{
-		Host.AssertClient();
+		Game.AssertClient();
 
 		if ( string.IsNullOrEmpty( ViewModelPath ) )
 			return;
@@ -69,12 +69,14 @@ partial class Fists : Weapon
 
 	private bool MeleeAttack()
 	{
-		var forward = Owner.EyeRotation.Forward;
+		var ray = Owner.AimRay;
+
+		var forward = ray.Forward;
 		forward = forward.Normal;
 
 		bool hit = false;
 
-		foreach ( var tr in TraceMelee( Owner.EyePosition, Owner.EyePosition + forward * 80, 20.0f ) )
+		foreach ( var tr in TraceMelee( ray.Position, ray.Position + forward * 80, 20.0f ) )
 		{
 			if ( !tr.Entity.IsValid() ) continue;
 
@@ -82,7 +84,7 @@ partial class Fists : Weapon
 
 			hit = true;
 
-			if ( !IsServer ) continue;
+			if ( !Game.IsServer ) continue;
 
 			using ( Prediction.Off() )
 			{
@@ -101,7 +103,7 @@ partial class Fists : Weapon
 	[ClientRpc]
 	private void OnMeleeMiss( bool leftHand )
 	{
-		Host.AssertClient();
+		Game.AssertClient();
 
 		ViewModelEntity?.SetAnimParameter( "attack_has_hit", false );
 		ViewModelEntity?.SetAnimParameter( "attack", true );
@@ -111,7 +113,7 @@ partial class Fists : Weapon
 	[ClientRpc]
 	private void OnMeleeHit( bool leftHand )
 	{
-		Host.AssertClient();
+		Game.AssertClient();
 
 		ViewModelEntity?.SetAnimParameter( "attack_has_hit", true );
 		ViewModelEntity?.SetAnimParameter( "attack", true );

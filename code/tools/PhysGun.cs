@@ -41,7 +41,7 @@ public partial class PhysGun : Carriable
 		SetModel( "weapons/rust_pistol/rust_pistol.vmdl" );
 	}
 
-	public override void Simulate( Client client )
+	public override void Simulate( IClient client )
 	{
 		if ( Owner is not Player owner ) return;
 
@@ -67,7 +67,7 @@ public partial class PhysGun : Carriable
 
 		BeamActive = grabEnabled;
 
-		if ( IsServer )
+		if ( Game.IsServer )
 		{
 			using ( Prediction.Off() )
 			{
@@ -181,7 +181,7 @@ public partial class PhysGun : Carriable
 
 		GrabbedEntity = rootEnt;
 		GrabbedEntity.Tags.Add( GrabbedTag );
-		GrabbedEntity.Tags.Add( $"{GrabbedTag}{Client.PlayerId}" );
+		GrabbedEntity.Tags.Add( $"{GrabbedTag}{Client.SteamId}" );
 
 		GrabbedPos = body.Transform.PointToLocal( tr.EndPosition );
 		GrabbedBone = body.GroupIndex;
@@ -224,7 +224,7 @@ public partial class PhysGun : Carriable
 
 	private void Activate()
 	{
-		if ( !IsServer )
+		if ( !Game.IsServer )
 		{
 			return;
 		}
@@ -232,7 +232,7 @@ public partial class PhysGun : Carriable
 
 	private void Deactivate()
 	{
-		if ( IsServer )
+		if ( Game.IsServer )
 		{
 			GrabEnd();
 		}
@@ -299,7 +299,7 @@ public partial class PhysGun : Carriable
 		if ( GrabbedEntity.IsValid() )
 		{
 			GrabbedEntity.Tags.Remove( GrabbedTag );
-			GrabbedEntity.Tags.Remove( $"{GrabbedTag}{Client.PlayerId}" );
+			GrabbedEntity.Tags.Remove( $"{GrabbedTag}{Client.SteamId}" );
 			GrabbedEntity = null;
 		}
 
@@ -310,7 +310,7 @@ public partial class PhysGun : Carriable
 	[Event.Physics.PreStep]
 	public void OnPrePhysicsStep()
 	{
-		if ( !IsServer )
+		if ( !Game.IsServer )
 			return;
 
 		if ( !heldBody.IsValid() )

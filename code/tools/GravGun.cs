@@ -40,11 +40,11 @@ public partial class GravGun : Carriable
 		SetModel( "weapons/rust_pistol/rust_pistol.vmdl" );
 	}
 
-	public override void Simulate( Client client )
+	public override void Simulate( IClient client )
 	{
 		if ( Owner is not Player owner ) return;
 
-		if ( !IsServer )
+		if ( !Game.IsServer )
 			return;
 
 		using ( Prediction.Off() )
@@ -158,7 +158,7 @@ public partial class GravGun : Carriable
 	{
 		base.ActiveStart( ent );
 
-		if ( IsServer )
+		if ( Game.IsServer )
 		{
 			Activate();
 		}
@@ -168,7 +168,7 @@ public partial class GravGun : Carriable
 	{
 		base.ActiveEnd( ent, dropped );
 
-		if ( IsServer )
+		if ( Game.IsServer )
 		{
 			Deactivate();
 		}
@@ -178,7 +178,7 @@ public partial class GravGun : Carriable
 	{
 		base.OnDestroy();
 
-		if ( IsServer )
+		if ( Game.IsServer )
 		{
 			Deactivate();
 		}
@@ -191,7 +191,7 @@ public partial class GravGun : Carriable
 	[Event.Physics.PreStep]
 	public void OnPrePhysicsStep()
 	{
-		if ( !IsServer )
+		if ( !Game.IsServer )
 			return;
 
 		if ( !HeldBody.IsValid() )

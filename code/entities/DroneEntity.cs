@@ -91,10 +91,10 @@ public partial class DroneEntity : Prop
 		}
 	}
 
-	public override void Simulate( Client owner )
+	public override void Simulate( IClient owner )
 	{
 		if ( owner == null ) return;
-		if ( !IsServer ) return;
+		if ( !Game.IsServer ) return;
 
 		using ( Prediction.Off() )
 		{
@@ -124,14 +124,14 @@ public partial class DroneEntity : Prop
 	{
 		base.OnNewModel( model );
 
-		if ( IsClient )
+		if ( Game.IsClient )
 		{
 		}
 	}
 
 	private float spinAngle;
 
-	[Event.Frame]
+	[Event.Client.Frame]
 	public void OnFrame()
 	{
 		spinAngle += 10000.0f * Time.Delta;

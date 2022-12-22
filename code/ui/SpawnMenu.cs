@@ -3,7 +3,6 @@ using Sandbox.Tools;
 using Sandbox.UI;
 using Sandbox.UI.Construct;
 
-
 [Library]
 public partial class SpawnMenu : Panel
 {
@@ -59,7 +58,7 @@ public partial class SpawnMenu : Panel
 	{
 		toollist.DeleteChildren( true );
 
-		foreach ( var entry in TypeLibrary.GetDescriptions<BaseTool>() )
+		foreach ( var entry in TypeLibrary.GetTypes<BaseTool>() )
 		{
 			if ( entry.Name == "BaseTool" )
 				continue;
@@ -90,7 +89,7 @@ public partial class SpawnMenu : Panel
 	void UpdateActiveTool()
 	{
 		var toolCurrent = ConsoleSystem.GetValue( "tool_current" );
-		var tool = string.IsNullOrWhiteSpace( toolCurrent ) ? null : TypeLibrary.GetDescription<BaseTool>( toolCurrent );
+		var tool = string.IsNullOrWhiteSpace( toolCurrent ) ? null : TypeLibrary.GetType<BaseTool>( toolCurrent );
 
 		foreach ( var child in toollist.Children )
 		{
