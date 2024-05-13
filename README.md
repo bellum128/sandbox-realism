@@ -1,3 +1,6 @@
+# Update - As Of 2024-05-13 #
+I am not archiving this addon, but I don't plan on updating it until S&box's APIs finally stabilize more closer to release.
+
 # Sandbox Realism #
 ---
 
